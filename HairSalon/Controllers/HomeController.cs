@@ -11,5 +11,11 @@ namespace HairSalon.Controllers
       return View();
     }
 
+    [HttpGet("/secret")]
+    public ActionResult Secret()
+    {
+      return View();
+    }
+
   }
 }
