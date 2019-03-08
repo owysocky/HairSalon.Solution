@@ -91,7 +91,7 @@ namespace HairSalon.Models
       MySqlConnection conn = DB.Connection();
       conn.Open();
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM stylists WHERE id = @searchId; DELETE FROM clients WHERE stylist_id = @searchId;";      
+      cmd.CommandText = @"DELETE FROM stylists WHERE id = @searchId; DELETE FROM clients WHERE stylist_id = @searchId;";
       MySqlParameter searchId = new MySqlParameter();
       searchId.ParameterName = "@searchId";
       searchId.Value = _id;
@@ -131,6 +131,24 @@ namespace HairSalon.Models
         conn.Dispose();
       }
       return allStylistClients;
+    }
+
+    public void DeleteClients()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"DELETE FROM clients WHERE stylist_id = @searchId;";
+      MySqlParameter searchId = new MySqlParameter();
+      searchId.ParameterName = "@searchId";
+      searchId.Value = _id;
+      cmd.Parameters.Add(searchId);
+      cmd.ExecuteNonQuery();
+      conn.Close();
+      if (conn != null)
+      {
+       conn.Dispose();
+      }
     }
 
     public override bool Equals(System.Object otherStylist)
