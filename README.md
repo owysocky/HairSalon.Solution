@@ -20,6 +20,8 @@ _No known bugs._
 | **All forms add inputs to database** | User input: "Stylist name" | Added to DB |
 | **All "Delete" buttons remove chosen stylist or client from database** | User input: "Delete" | Deleted from DB |
 | **All "Edit" buttons edit chosen stylist or client in database** | User input: "New stylist name" | Edited in DB |
+| **All "Select Specialty" buttons add specialties to stylists** | User input: "Add haircut" | Edited in DB |
+| **All "Select Stylists" buttons add stylists to specialties** | User input: "Add Name" | Edited in DB |
 
 ## Installation Requirements
 * _Download and install .NET Core 1.1.4 SDK._
@@ -41,6 +43,8 @@ _No known bugs._
 * _> CREATE DATABASE olha_wysocky;_
 * _> USE olha_wysocky;_
 * _> CREATE TABLE stylists (id serial PRIMARY KEY, name VARCHAR(255));_
+* _> CREATE TABLE stylists_specialties (id serial PRIMARY KEY, stylist_id int, specialty_id int);_
+* _> CREATE TABLE specialties (id serial PRIMARY KEY, name VARCHAR(255));_
 * _> CREATE TABLE clients (id serial PRIMARY KEY, stylist_id int, description VARCHAR(255), phone int);_
 
 
