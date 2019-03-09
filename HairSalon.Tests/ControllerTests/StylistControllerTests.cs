@@ -1,116 +1,111 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
-using Microsoft.AspNetCore.Mvc;
+using HairSalon.Controllers;
 using HairSalon.Models;
 
-namespace HairSalon.Controllers
+namespace HairSalon.Tests
 {
-  public class StylistController : Controller
+  [TestClass]
+  public class StylistControllerTest : IDisposable
   {
-    [HttpGet("/stylists")]
-    public ActionResult Index()
+
+    public StylistControllerTest()
     {
-      List<Stylist> allStylists = Stylist.GetAll();
-      return View(allStylists);
+      DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=8889;database=olha_wysocky_test;";
     }
 
-    [HttpGet("/stylists/new")]
-    public ActionResult New()
+    public void Dispose()
     {
-      return View();
+      Stylist.ClearAll();
+      Client.ClearAll();
+      Specialty.ClearAll();
     }
 
-    [HttpPost("/stylists")]
-    public ActionResult Create(string stylistName)
+    [TestMethod]
+    public void Index_ReturnsCorrectView_True()
     {
-      Stylist newStylist = new Stylist(stylistName);
-      newStylist.Save();
-      List<Stylist> allStylists = Stylist.GetAll();
-      return View("Index", allStylists);
+      //Arrange
+      StylistController controller = new StylistController();
+
+      //Act
+      ActionResult indexView = controller.Index();
+
+      //Assert
+      Assert.IsInstanceOfType(indexView, typeof(ViewResult));
     }
 
-    [HttpGet("/stylists/{id}")]
-    public ActionResult Show(int id)
+    [TestMethod]
+    public void New_ReturnsCorrectType_True()
     {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Stylist selectedStylist = Stylist.Find(id);
-      List<Client> stylistClients = selectedStylist.GetClients();
-      List<Specialty> allSpecialties = Specialty.GetAll();
-      List<Specialty> stylistSpecialties = selectedStylist.GetSpecialties();
-      model.Add("stylist", selectedStylist);
-      model.Add("stylistSpecialties", stylistSpecialties);
-      model.Add("clients", stylistClients);
-      model.Add("allSpecialties", allSpecialties);
-      return View(model);
+      StylistController controller = new StylistController();
+      IActionResult view = controller.New();
+      Assert.IsInstanceOfType(view, typeof(ViewResult));
     }
 
-    [HttpPost("/stylists/{stylistId}/clients")]
-    public ActionResult Create(int stylistId, string clientName, int clientPhone)
+    [TestMethod]
+    public void CreateForStylist_ReturnsCorrectType_True()
     {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Stylist selectedStylist = Stylist.Find(stylistId);
-      Client newClient = new Client(stylistId, clientName, clientPhone);
-      newClient.Save();
-      List<Client> stylistClients = selectedStylist.GetClients();
-      List<Specialty> allSpecialties = Specialty.GetAll();
-      List<Specialty> stylistSpecialties = selectedStylist.GetSpecialties();
-      model.Add("clients", stylistClients);
-      model.Add("stylistSpecialties", stylistSpecialties);
-      model.Add("stylist", selectedStylist);
-      model.Add("allSpecialties", allSpecialties);
-      return View("Show", model);
+      StylistController controller = new StylistController();
+      IActionResult view = controller.Create("Olya");
+      Assert.IsInstanceOfType(view, typeof(ViewResult));
     }
 
-    [HttpPost("/stylists/{stylistId}/clients/delete")]
-    public ActionResult DeleteClients(int stylistId)
+    [TestMethod]
+    public void Show_ReturnsCorrectType_ActionResult()
     {
-      Stylist stylist = Stylist.Find(stylistId);
-      stylist.DeleteClients();
-      return RedirectToAction("Show",  new { id = stylistId });
+      StylistController controller = new StylistController();
+      IActionResult view = controller.Show(1);
+      Assert.IsInstanceOfType(view, typeof(ViewResult));
     }
 
-    [HttpPost("/stylists/{stylistId}/delete")]
-    public ActionResult Delete(int stylistId)
+    [TestMethod]
+    public void Show_HasCorrectModelType_Dictionary()
     {
-      Stylist stylist = Stylist.Find(stylistId);
-      stylist.Delete();
-      return RedirectToAction("Index");
+      ViewResult view = new StylistController().Show(1) as ViewResult;
+      var result = view.ViewData.Model;
+      Assert.IsInstanceOfType(result, typeof(Dictionary<string, object>));
     }
 
-    [HttpPost("/stylists/delete")]
-    public ActionResult DeleteAll()
+    [TestMethod]
+    public void Delete_ReturnsCorrectType_ActionResult()
     {
-      Stylist.DeleteAll();
-      return RedirectToAction("Index");
+      StylistController controller = new StylistController();
+      IActionResult view = controller.Delete(1);
+      Assert.IsInstanceOfType(view, typeof(RedirectToActionResult));
     }
 
-    [HttpPost("/stylists/{stylistId}/specialties/new")]
-    public ActionResult AddSpecialty(int stylistId, int specialtyId)
+    [TestMethod]
+    public void DeleteClients_ReturnsCorrectType_ActionResult()
     {
-      Stylist stylist = Stylist.Find(stylistId);
-      Specialty specialty = Specialty.Find(specialtyId);
-      stylist.AddSpecialty(specialty);
-      return RedirectToAction("Show",  new { id = stylistId });
+      StylistController controller = new StylistController();
+      IActionResult view = controller.DeleteClients(1);
+      Assert.IsInstanceOfType(view, typeof(RedirectToActionResult));
     }
 
-    [HttpGet("/stylists/{stylistId}/edit")]
-    public ActionResult Edit(int stylistId)
+    [TestMethod]
+    public void DeleteAll_ReturnsCorrectType_ActionResult()
     {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Stylist stylist = Stylist.Find(stylistId);
-      model.Add("stylist", stylist);
-      return View(model);
+      StylistController controller = new StylistController();
+      IActionResult view = controller.DeleteAll();
+      Assert.IsInstanceOfType(view, typeof(RedirectToActionResult));
     }
 
-    [HttpPost("/stylists/{stylistId}/update")]
-    public ActionResult Update(int stylistId, string newName)
+    [TestMethod]
+    public void Edit_ReturnsCorrectType_ActionResult()
     {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Stylist stylist = Stylist.Find(stylistId);
-      stylist.Edit(newName);
-      model.Add("stylist", stylist);
-      return RedirectToAction("Show",  new { id = stylistId });
+      StylistController controller = new StylistController();
+      IActionResult view = controller.Edit(1);
+      Assert.IsInstanceOfType(view, typeof(ViewResult));
     }
 
+    [TestMethod]
+    public void Edit_HasCorrectModelType_Dictionary()
+    {
+      ViewResult view = new StylistController().Edit(1) as ViewResult;
+      var result = view.ViewData.Model;
+      Assert.IsInstanceOfType(result, typeof(Dictionary<string, object>));
+    }
   }
 }

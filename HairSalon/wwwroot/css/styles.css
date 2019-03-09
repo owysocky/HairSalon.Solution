@@ -1,13 +1,24 @@
 
 .jumbotron{
-  background-color: red;
-}
-
-.container{
-  background-color: red;
-  width: 60%
+  background-color: #79C1FF;
 }
 
 .menu{
   margin-left: 10%;
+}
+
+.well{
+  background-color: #EBF6FF;
+  border: 2px solid #79C1FF;
+}
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+li{
+ font-size:20px;
 }
